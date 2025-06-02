@@ -20,7 +20,7 @@ jobs:
               uses: actions/checkout@v4
 
             # You can replace these steps with your specific setup steps
-            # This example assumes Node 22 and pnpm 8
+            # This example assumes Node 22 and pnpm 10
             - name: Setup Node 22
               uses: actions/setup-node@v4
               with:
@@ -28,9 +28,9 @@ jobs:
                   registry-url: https://registry.npmjs.org/
 
             - name: Setup PNPM
-              uses: pnpm/action-setup@v3.0.0
+              uses: pnpm/action-setup@v4.1.0
               with:
-                  version: 8.12.1
+                  version: 10.11.1
 
             - name: Install
               run: pnpm install
