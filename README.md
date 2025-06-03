@@ -52,7 +52,7 @@ This will add a comment to your PRs with any errors, for example:
 | `filterChanges` | When true only the files that change (in the pull request) will be checked                                                                                                                                               | `true`                |
 | `failOnError`   | Should we cause CI to fail if there is a Svelte Check error?                                                                                                                                                             | `false`               |
 | `failOnWarning` | Should we cause CI to fail if there is a Svelte Check warning?                                                                                                                                                           | `false`               |
-| `failFilter`    | When failFilter is set and either failOnError or failOnWarning is enabled, the action will only fail for issues that occur in paths matching these globes.                                                               | Disabled              |
+| `failFilter`    | When failFilter is set and either failOnError or failOnWarning is enabled, the action will only fail for issues that occur in paths matching these globs.                                                                | Disabled              |
 | `token`         | The GitHub token used to authenticate with the GitHub API. By default, GitHub generates a token for the workflow run - which we use. You can provide your own token if you like.                                         | `${{ github.token }}` |
 
 You can configure the action by passing the options under the `with` key, for example:
