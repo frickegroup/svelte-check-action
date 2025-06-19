@@ -6,7 +6,8 @@
 		".": "./dist/index.js"
 	},
 	"scripts": {
-		"build": "tsup src/index.ts --clean --format cjs"
+		"build": "tsup src/index.ts --clean --format cjs",
+		"format": "prettier --write ."
 	},
 	"devDependencies": {
 		"@actions/core": "^1.11.1",
