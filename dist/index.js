@@ -25440,19 +25440,41 @@ var require_picomatch2 = __commonJS({
   }
 });
 
-// src/index.ts
-var index_exports = {};
-__export(index_exports, {
-  DiagnosticStore: () => DiagnosticStore
-});
-module.exports = __toCommonJS(index_exports);
+// src/files.ts
+var import_node_path = require("path");
+function is_subdir(parent, child) {
+  return !(0, import_node_path.relative)((0, import_node_path.normalize)(parent), (0, import_node_path.normalize)(child)).startsWith("..");
+}
+async function get_blob_base(ctx) {
+  const { data: pr } = await ctx.octokit.rest.pulls.get({
+    pull_number: ctx.pr_number,
+    owner: ctx.owner,
+    repo: ctx.repo
+  });
+  return new URL(`https://github.com/${ctx.owner}/${ctx.repo}/blob/${pr.head.sha}`);
+}
+async function get_pr_files(ctx) {
+  if (!ctx.config.filter_changes) {
+    return null;
+  }
+  const pr_files = await ctx.octokit.paginate(ctx.octokit.rest.pulls.listFiles, {
+    per_page: 100,
+    pull_number: ctx.pr_number,
+    owner: ctx.owner,
+    repo: ctx.repo
+  });
+  return pr_files.map((file) => (0, import_node_path.join)(ctx.repo_root, file.filename));
+}
+function fmt_path(path, ctx) {
+  return path.replace(ctx.repo_root, "").replace(/^\/+/, "");
+}
 
 // src/diagnostic.ts
 var import_promises = require("fs/promises");
 var import_core = __toESM(require_core());
 var core = __toESM(require_core());
 var import_node_fs = require("fs");
-var import_node_path = require("path");
+var import_node_path2 = require("path");
 
 // node_modules/.pnpm/nanoexec@1.1.0_@types+node@20.17.10/node_modules/nanoexec/dist/index.js
 var import_node_child_process = require("child_process");
@@ -29623,7 +29645,7 @@ async function get_diagnostics(cwd) {
       diagnostics.push({
         ...diagnostic,
         fileName: filename,
-        path: (0, import_node_path.join)(cwd, filename)
+        path: (0, import_node_path2.join)(cwd, filename)
       });
     } catch (e) {
       core.startGroup("failed to parse a diagnostic");
@@ -29636,7 +29658,7 @@ async function get_diagnostics(cwd) {
   return diagnostics;
 }
 async function try_run_svelte_kit_sync(cwd) {
-  const pkg_path = (0, import_node_path.join)(cwd, "package.json");
+  const pkg_path = (0, import_node_path2.join)(cwd, "package.json");
   if (!(0, import_node_fs.existsSync)(pkg_path)) return;
   const pkg = JSON.parse(await (0, import_promises.readFile)(pkg_path, "utf-8"));
   if (pkg.dependencies?.["@sveltejs/kit"] || pkg.devDependencies?.["@sveltejs/kit"]) {
@@ -29651,34 +29673,39 @@ async function try_run_svelte_kit_sync(cwd) {
   }
 }
 
-// src/files.ts
-var import_node_path2 = require("path");
-function is_subdir(parent, child) {
-  return !(0, import_node_path2.relative)((0, import_node_path2.normalize)(parent), (0, import_node_path2.normalize)(child)).startsWith("..");
-}
-async function get_blob_base(ctx) {
-  const { data: pr } = await ctx.octokit.rest.pulls.get({
-    pull_number: ctx.pr_number,
-    owner: ctx.owner,
-    repo: ctx.repo
-  });
-  return new URL(`https://github.com/${ctx.owner}/${ctx.repo}/blob/${pr.head.sha}`);
-}
-async function get_pr_files(ctx) {
-  if (!ctx.config.filter_changes) {
-    return null;
+// src/store.ts
+var DiagnosticStore = class {
+  constructor(ctx, changed_files) {
+    this.ctx = ctx;
+    this.changed_files = changed_files;
   }
-  const pr_files = await ctx.octokit.paginate(ctx.octokit.rest.pulls.listFiles, {
-    per_page: 100,
-    pull_number: ctx.pr_number,
-    owner: ctx.owner,
-    repo: ctx.repo
-  });
-  return pr_files.map((file) => (0, import_node_path2.join)(ctx.repo_root, file.filename));
-}
-function fmt_path(path, ctx) {
-  return path.replace(ctx.repo_root, "").replace(/^\/+/, "");
-}
+  store = /* @__PURE__ */ new Map();
+  warning_count = 0;
+  error_count = 0;
+  get count() {
+    return this.warning_count + this.error_count;
+  }
+  filtered_error_count = 0;
+  filtered_warning_count = 0;
+  get filtered_count() {
+    return this.filtered_warning_count + this.filtered_error_count;
+  }
+  add(diagnostic) {
+    if (this.changed_files && !this.changed_files.includes(diagnostic.path)) {
+      return;
+    }
+    const current = this.store.get(diagnostic.path) ?? [];
+    current.push(diagnostic);
+    this.store.set(diagnostic.path, current);
+    this[`${diagnostic.type}_count`]++;
+    if (this.ctx.config.fail_filter(fmt_path(diagnostic.path, this.ctx))) {
+      this[`filtered_${diagnostic.type}_count`]++;
+    }
+  }
+  entries() {
+    return this.store.entries();
+  }
+};
 
 // src/ctx.ts
 var github = __toESM(require_github());
@@ -31357,38 +31384,6 @@ ${diagnostics_markdown.join("\n")}
 }
 
 // src/index.ts
-var DiagnosticStore = class {
-  constructor(ctx, changed_files) {
-    this.ctx = ctx;
-    this.changed_files = changed_files;
-  }
-  store = /* @__PURE__ */ new Map();
-  warning_count = 0;
-  error_count = 0;
-  get count() {
-    return this.warning_count + this.error_count;
-  }
-  filtered_error_count = 0;
-  filtered_warning_count = 0;
-  get filtered_count() {
-    return this.filtered_warning_count + this.filtered_error_count;
-  }
-  add(diagnostic) {
-    if (this.changed_files && !this.changed_files.includes(diagnostic.path)) {
-      return;
-    }
-    const current = this.store.get(diagnostic.path) ?? [];
-    current.push(diagnostic);
-    this.store.set(diagnostic.path, current);
-    this[`${diagnostic.type}_count`]++;
-    if (this.ctx.config.fail_filter(fmt_path(diagnostic.path, this.ctx))) {
-      this[`filtered_${diagnostic.type}_count`]++;
-    }
-  }
-  entries() {
-    return this.store.entries();
-  }
-};
 async function send(ctx, body) {
   const { data: comments } = await ctx.octokit.rest.issues.listComments({
     issue_number: ctx.pr_number,
@@ -31470,10 +31465,6 @@ async function main() {
   }
 }
 main().then(() => console.log("Finished")).catch((error) => core3.setFailed(error instanceof Error ? error.message : `${error}`));
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  DiagnosticStore
-});
 /*! Bundled license information:
 
 undici/lib/fetch/body.js:
