@@ -46,7 +46,7 @@ and annotations to your changed files tab:
 
 ## Options
 
-By default the action will only check files that are changed in the pull request (this is likely changing in the next major release). You can customise this behaviour by using the following options:
+By default the action will only check files that are changed in the pull request. You can customise this behaviour by using the following options:
 
 | Option          | Description                                                                                                                                                                | Default               |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
