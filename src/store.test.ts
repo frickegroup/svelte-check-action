@@ -17,6 +17,7 @@ function create_ctx(filter_changes: boolean | string[]): CTX {
 		owner: 'ghostdevv',
 		repo_root,
 		pr_number: 1,
+		// biome-ignore lint/suspicious/noExplicitAny: test
 		octokit: {} as any,
 		config: {
 			fail_filter: picomatch('**'),
@@ -257,6 +258,7 @@ describe('DiagnosticStore', () => {
 			owner: 'ghostdevv',
 			repo_root,
 			pr_number: 1,
+			// biome-ignore lint/suspicious/noExplicitAny: test
 			octokit: {} as any,
 			config: {
 				fail_filter: picomatch('lib/**'), // Only match lib files
@@ -290,6 +292,7 @@ describe('DiagnosticStore', () => {
 			owner: 'ghostdevv',
 			repo_root,
 			pr_number: 1,
+			// biome-ignore lint/suspicious/noExplicitAny: test
 			octokit: {} as any,
 			config: {
 				fail_filter: picomatch('src/**'), // Only match src files

@@ -7,12 +7,13 @@
 	},
 	"scripts": {
 		"build": "tsup src/index.ts --clean --format cjs",
-		"format": "prettier --write .",
+		"check": "biome check && prettier --write .",
 		"test": "vitest"
 	},
 	"devDependencies": {
 		"@actions/core": "^1.11.1",
 		"@actions/github": "^6.0.0",
+		"@biomejs/biome": "2.0.0",
 		"@types/node": "^20.17.10",
 		"@types/picomatch": "^3.0.1",
 		"date-fns": "^4.1.0",

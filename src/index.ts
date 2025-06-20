@@ -80,7 +80,9 @@ async function main() {
 	// Send the GitHub workflow annotations
 	for (const [path, diags] of diagnostics.entries()) {
 		for (const diagnostic of diags) {
-			core[diagnostic.type](diagnostic.message, {
+			const report = diagnostic.type === 'error' ? core.error : core.warning;
+
+			report(diagnostic.message, {
 				title: 'svelte-check',
 				file: path,
 				startLine: diagnostic.start.line,
