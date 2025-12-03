@@ -5,7 +5,6 @@ Enhance your [svelte-check](http://npmjs.com/svelte-check) experience in GitHub 
 > [!NOTE]
 > Forked version with --no-tsconfig flag.
 
-
 ```yaml
 name: Svelte Check
 

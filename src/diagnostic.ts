@@ -48,10 +48,11 @@ export interface Diagnostic extends Omit<RawDiagnostic, 'filename'> {
 export async function get_diagnostics(cwd: string) {
 	await try_run_svelte_kit_sync(cwd);
 
-	const result = await exec('npx', ['-y', 'svelte-check@4', '--output=machine-verbose'], {
-		shell: true,
-		cwd,
-	});
+	const result = await exec(
+		'npx',
+		['-y', 'svelte-check@4', '--no-tsconfig', '--output=machine-verbose'],
+		{ shell: true, cwd },
+	);
 
 	if (result.code != null && result.code > 1) {
 		console.error('Failed to run svelte-check', result.stderr.toString());
