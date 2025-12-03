@@ -29624,10 +29624,11 @@ var diagnosticSchema = z.object({
 });
 async function get_diagnostics(cwd) {
   await try_run_svelte_kit_sync(cwd);
-  const result = await dist_default2("npx", ["-y", "svelte-check@4", "--output=machine-verbose"], {
-    shell: true,
-    cwd
-  });
+  const result = await dist_default2(
+    "npx",
+    ["-y", "svelte-check@4", "--no-tsconfig", "--output=machine-verbose"],
+    { shell: true, cwd }
+  );
   if (result.code != null && result.code > 1) {
     console.error("Failed to run svelte-check", result.stderr.toString());
     (0, import_core.setFailed)(`Failed to run svelte-check: "${result.stderr}"`);
