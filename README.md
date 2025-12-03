@@ -2,6 +2,10 @@
 
 Enhance your [svelte-check](http://npmjs.com/svelte-check) experience in GitHub actions by adding both comments and annotations to your PRs.
 
+> [!NOTE]
+> Forked version with --no-tsconfig flag.
+
+
 ```yaml
 name: Svelte Check
 
